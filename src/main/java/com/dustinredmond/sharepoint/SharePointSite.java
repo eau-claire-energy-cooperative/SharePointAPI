@@ -1,5 +1,10 @@
 package com.dustinredmond.sharepoint;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -50,4 +55,54 @@ public class SharePointSite {
     	
     	return result;
     }
+	
+	public boolean uploadFile(String folderPath, String filename, InputStream fileData) {
+		String url = baseSite + API_URL + String.format("GetFolderByServerRelativeUrl('%s')/Files/add(url='%s',overwrite=true)", urlEncodePath(folderPath), urlEncodePath(filename));
+		
+		JsonObject result = api.post(url, fileData);
+		
+		return result != null && result.get("Exists").getAsString().equals("true");
+	}
+	
+	public InputStream downloadFile(String path) {
+		// attempt to get the file contents from online
+		String url = baseSite + API_URL + String.format("getfilebyserverrelativeurl('%s')/$value", this.urlEncodePath(path));
+		
+		return api.getFile(url);
+	}
+	
+	public boolean downloadFile(String path, File dest) {
+		boolean result = false; //assume we'll fail
+		
+		InputStream fileStream = this.downloadFile(path);
+		
+		if(fileStream != null)
+		{
+			//we have the file, save to disk
+			try{
+				OutputStream outstream = new FileOutputStream(dest);
+		
+				byte[] buf = new byte[1024];
+				int len;
+				
+				while ((len = fileStream.read(buf)) > 0)
+				{
+					outstream.write(buf, 0, len);
+				}
+				
+				//close the stream here
+				fileStream.close();
+				outstream.close();
+				
+				//made it!
+				result = true;
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
 }
