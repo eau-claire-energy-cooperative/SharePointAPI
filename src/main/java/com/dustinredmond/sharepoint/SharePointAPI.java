@@ -1,6 +1,10 @@
 package com.dustinredmond.sharepoint;
 
-import static com.dustinredmond.sharepoint.SharePointRequests.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  * Constructs an instance of the SharePointAPI,
@@ -28,9 +32,13 @@ public class SharePointAPI {
      * @throws RuntimeException If the response's status code is other than 200
      */
     public String get(String path) {
-        return doGet(path, authToken);
+        return SharePointRequests.doGet(path, authToken);
     }
 
+    public InputStream getFile(String path) {
+    	return SharePointRequests.doGetStream(path, authToken);
+    }
+    
     /**
      * Executes a HTTP POST request at the given path.
      * @param path The API endpoint path
@@ -38,20 +46,69 @@ public class SharePointAPI {
      * @return The response as a String
      * @throws RuntimeException If the response's status code is other than 200
      */
-    public String post(String path, String data) {
-        return doPost(path, data, authToken);
+    @SuppressWarnings("unused")
+    protected JSONObject post(String path, InputStream data) {
+    	JSONObject result = null;
+    	
+    	String postResult = SharePointRequests.doPost(path, data, authToken);
+    	
+    	if(postResult != null) 
+    	{
+    		result = (JSONObject)JSONValue.parse(postResult);
+    		
+    		if(result.containsKey("d"))
+    		{
+    			result = (JSONObject)result.get("d");
+    		}
+    	}
+    	
+        return result;
     }
 
+    protected JSONObject post(String path, String data) {
+    	JSONObject result = null;
+    	
+    	String postResult = SharePointRequests.doPost(path, data, authToken);
+    	
+    	if(postResult != null) 
+    	{
+    		result = (JSONObject)JSONValue.parse(postResult);
+    		
+    		if(result.containsKey("d"))
+    		{
+    			result = (JSONObject)result.get("d");
+    		}
+    	}
+    	
+        return result;
+    }
+    
     /**
      * Executes a HTTP DELETE request at the given path.
      * @param path The API endpoint path
+     * @param formDigestValue The X-RequestDigest value
      * @return The response as a String
      * @throws RuntimeException If the response's status code is other than 200
      */
-    public String delete(String path) {
-        return doDelete(path, authToken);
+    @SuppressWarnings("unused")
+    protected String delete(String path) {
+        return SharePointRequests.doDelete(path, authToken);
     }
+    
+    public JSONArray listFiles(String path){
+    	JSONArray result = null;
+    	
+    	JSONObject response = (JSONObject)JSONValue.parse(this.get(path));
 
+    	if(response != null && response.containsKey("d"))
+    	{
+    		result = (JSONArray)((JSONObject)response.get("d")).get("results");
+    	}
+    	
+    	return result;
+    }
+    
+    
     /**
      * Gets an instance of the SharePointAPI class.
      * Provided as a convenience method, to avoid having to create

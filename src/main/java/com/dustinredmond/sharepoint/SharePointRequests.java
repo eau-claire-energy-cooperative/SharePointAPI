@@ -4,34 +4,28 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class SharePointRequests {
 
-    protected static String getFormDigestValue(Token auth) {
+    protected static InputStream doGetStream(String url, Token authToken) {
+        final String urlPath = "https://" + authToken.getDomain() + ".sharepoint.com/" + url;
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost("https://" + auth.getDomain() + ".sharepoint.com/_api/contextinfo");
-            post.addHeader("Cookie", auth.getRtFa() + ";" + auth.getFedAuth());
-            post.addHeader("accept", "application/json;odata=verbose");
-            post.addHeader("content-type", "application/json;odata=verbose");
+            HttpGet httpGet = new HttpGet(urlPath);
+            httpGet.addHeader("Cookie", String.format("%s;%s", authToken.getRtFa(), authToken.getFedAuth()));
+            httpGet.addHeader("accept", "application/json;odata=verbose");
+            HttpResponse response = client.execute(httpGet);
 
-            HttpResponse response = client.execute(post);
-            if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
-                throw new RuntimeException("Error code: " + response.getStatusLine().getStatusCode());
-            }
-            if (response.getEntity() == null || response.getEntity().getContent() == null) {
-                return null;
+            if (response.getStatusLine().getStatusCode() == 200) {
+                return new ByteArrayInputStream(response.getEntity().getContent().readAllBytes());
             } else {
-                String json = inStreamToString(response.getEntity().getContent());
-                int indexOfDigest = json.indexOf("\"FormDigestValue\":\"");
-                String digestStart =  json.substring(indexOfDigest+19);
-                return digestStart.substring(0, digestStart.indexOf("\""));
+                throw new RuntimeException("Error code: " + response.getStatusLine().getStatusCode());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -39,34 +33,24 @@ public class SharePointRequests {
     }
 
     protected static String doGet(String url, Token authToken) {
-        final String urlPath = "https://" + authToken.getDomain() + ".sharepoint.com/" + url;
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpGet httpGet = new HttpGet(urlPath);
-            httpGet.addHeader("Cookie", String.format("%s;%s", authToken.getRtFa(), authToken.getFedAuth()));
-            httpGet.addHeader("accept", "application/json;odata=verbose");
-            HttpResponse response = client.execute(httpGet);
-            if (response.getStatusLine().getStatusCode() == 200) {
-                return inStreamToString(response.getEntity().getContent());
-            } else {
-                throw new RuntimeException("Error code: " + response.getStatusLine().getStatusCode());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    	try {
+			return inStreamToString(SharePointRequests.doGetStream(url, authToken));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
+		}
     }
 
-    protected static String doPost(String path, String data, Token authToken) {
+    protected static String doPost(String path, InputStream data, Token authToken) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
             post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
             post.addHeader("accept", "application/json;odata=verbose");
-            post.addHeader("content-type", "application/json;odata=verbose");
             post.addHeader("X-RequestDigest", getFormDigestValue(authToken));
             post.addHeader("IF-MATCH", "*");
 
             if (data != null) {
-                StringEntity input = new StringEntity(data, StandardCharsets.UTF_8);
-                input.setContentType("application/json");
+                ByteArrayEntity input = new ByteArrayEntity(data.readAllBytes());
                 post.setEntity(input);
             }
 
@@ -84,6 +68,34 @@ public class SharePointRequests {
         }
     }
 
+    protected static String doPost(String path, String data, Token authToken) {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
+            post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
+            post.addHeader("accept", "application/json;odata=verbose");
+            post.addHeader("Content-Type", "application/json");
+            post.addHeader("X-RequestDigest", getFormDigestValue(authToken));
+            post.addHeader("IF-MATCH", "*");
+
+            if (data != null) {
+                StringEntity input = new StringEntity(data);
+                post.setEntity(input);
+            }
+
+            HttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
+                throw new RuntimeException("Error code: " + response.toString());
+            }
+            if (response.getEntity() == null || response.getEntity().getContent() == null) {
+                return null;
+            } else {
+                return inStreamToString(response.getEntity().getContent());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     protected static String doDelete(String path, Token authToken) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpDelete del = new HttpDelete("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
@@ -93,6 +105,7 @@ public class SharePointRequests {
             del.addHeader("X-RequestDigest", getFormDigestValue(authToken));
             del.addHeader("IF-MATCH", "*");
             HttpResponse response = client.execute(del);
+
             if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
                 throw new RuntimeException("Error code: " + response.getStatusLine().getStatusCode());
             }
@@ -117,5 +130,29 @@ public class SharePointRequests {
             }
         }
         return sb.toString();
+    }
+    
+    private static String getFormDigestValue(Token auth) {
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost("https://" + auth.getDomain() + ".sharepoint.com/_api/contextinfo");
+            post.addHeader("Cookie", auth.getRtFa() + ";" + auth.getFedAuth());
+            post.addHeader("accept", "application/json;odata=verbose");
+            post.addHeader("content-type", "application/json;odata=verbose");
+
+            HttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
+                throw new RuntimeException("Error code: " + response.getStatusLine().getStatusCode());
+            }
+            if (response.getEntity() == null || response.getEntity().getContent() == null) {
+                return null;
+            } else {
+                String json = inStreamToString(response.getEntity().getContent());
+                int indexOfDigest = json.indexOf("\"FormDigestValue\":\"");
+                String digestStart =  json.substring(indexOfDigest+19);
+                return digestStart.substring(0, digestStart.indexOf("\""));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
