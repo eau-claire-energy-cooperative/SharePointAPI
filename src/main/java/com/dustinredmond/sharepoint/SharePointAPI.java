@@ -131,13 +131,16 @@ public class SharePointAPI {
      * Executes a HTTP DELETE request at the given path.
      * @param path The API endpoint path
      * @param formDigestValue The X-RequestDigest value
-     * @return The response as a JsonObject
+     * @return boolean if this was successful
      */
-    protected JsonObject delete(String path) {
-    	JsonObject result = null;
+    protected boolean delete(String path) {
+    	boolean result = false;
     	
         try {
-			result = parseJson(requests.doDelete(path));
+        	//this doesn't return a response, if no error assume true
+			requests.doDelete(path);
+			result = true;
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
