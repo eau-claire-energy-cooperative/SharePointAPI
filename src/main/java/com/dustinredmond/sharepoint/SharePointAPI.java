@@ -1,5 +1,6 @@
 package com.dustinredmond.sharepoint;
 
+import java.io.IOException;
 import java.io.InputStream;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -55,10 +56,17 @@ public class SharePointAPI {
      * https://youDomain.sharepoint.com/${path goes here}
      * @param path The API endpoint path
      * @return The response as a String
-     * @throws RuntimeException If the response's status code is other than 200
      */
     public JsonObject get(String path) {
-        return parseJson(requests.doGet(path));
+    	JsonObject result = null;
+    	
+        try {
+			result = parseJson(requests.doGet(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        return result;
     }
 
     /**
@@ -69,7 +77,15 @@ public class SharePointAPI {
      * @return the file as an InputStream
      */
     public InputStream getFile(String path) {
-    	return requests.doGetStream(path);
+    	InputStream result = null;
+    	
+    	try {
+			result = requests.doGetStream(path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
+    	return result;
     }
     
     /**
@@ -77,10 +93,18 @@ public class SharePointAPI {
      * @param path The API endpoint path
      * @param data The data as an InputStream
      * @return The response as a JsonObject
-     * @throws RuntimeException If the response's status code is other than 200
      */
     protected JsonObject post(String path, InputStream data) {
-    	return parseJson(requests.doPost(path, data));
+    	JsonObject result = null;
+    	
+    	try {
+			result = parseJson(requests.doPost(path, data));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	return result;
     }
 
     
@@ -89,10 +113,18 @@ public class SharePointAPI {
      * @param path The API endpoint path
      * @param data The data as a String
      * @return The response as a JsonObject
-     * @throws RuntimeException If the response's status code is other than 200
      */
     protected JsonObject post(String path, String data) {
-    	return parseJson(requests.doPost(path, data));
+    	JsonObject result = null;
+    	
+    	try {
+			result = parseJson(requests.doPost(path, data));
+		} catch (IOException e) {
+    	
+			e.printStackTrace();
+		}
+    	
+    	return result;
     }
     
     /**
@@ -100,10 +132,17 @@ public class SharePointAPI {
      * @param path The API endpoint path
      * @param formDigestValue The X-RequestDigest value
      * @return The response as a JsonObject
-     * @throws RuntimeException If the response's status code is other than 200
      */
     protected JsonObject delete(String path) {
-        return parseJson(requests.doDelete(path));
+    	JsonObject result = null;
+    	
+        try {
+			result = parseJson(requests.doDelete(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        return result;
     }
     
     public JsonArray listFiles(String path){
