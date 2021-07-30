@@ -1,10 +1,9 @@
 package com.dustinredmond.sharepoint;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 /**
  * Constructs an instance of the SharePointAPI,
@@ -22,17 +21,33 @@ public class SharePointAPI {
     public SharePointAPI(Token authToken) {
         requests = new SharePointHttpRequests(authToken);
     }
-
+    
     /**
      * Provided as a convenience method, to avoid having to create
      * a token via SharePointTokenFactory.getToken()
      * @param username The SharePoint username e.g. person@example.com
      * @param password The SharePoint user's password
      * @param domain The subdomain of SharePoint
-     * @return An instance of the SharePointAPI for making requests to SharePoint
      */
     public SharePointAPI(String username, String password, String domain) {
         this(TokenFactory.getToken(username, password, domain));
+    }
+    
+    private JsonObject parseJson(String json) {
+    	JsonObject result = null;
+    	
+    	if(json != null)
+    	{
+    		result = JsonParser.parseString(json).getAsJsonObject();
+    		
+    		// if the data exists extract it
+    		if(result.has("d"))
+    		{
+    			result = result.getAsJsonObject("d");
+    		}
+    	}
+    	
+    	return result;
     }
     
     /**
@@ -42,10 +57,17 @@ public class SharePointAPI {
      * @return The response as a String
      * @throws RuntimeException If the response's status code is other than 200
      */
-    public String get(String path) {
-        return requests.doGet(path);
+    public JsonObject get(String path) {
+        return parseJson(requests.doGet(path));
     }
 
+    /**
+     * Executes a HTTP POST request to the given path
+     * the result is the binary of the response, useful for downloading files
+     * 
+     * @param path the path to the file
+     * @return the file as an InputStream
+     */
     public InputStream getFile(String path) {
     	return requests.doGetStream(path);
     }
@@ -53,67 +75,46 @@ public class SharePointAPI {
     /**
      * Executes a HTTP POST request at the given path.
      * @param path The API endpoint path
-     * @param data The data
-     * @return The response as a String
+     * @param data The data as an InputStream
+     * @return The response as a JsonObject
      * @throws RuntimeException If the response's status code is other than 200
      */
-    @SuppressWarnings("unused")
-    protected JSONObject post(String path, InputStream data) {
-    	JSONObject result = null;
-    	
-    	String postResult = requests.doPost(path, data);
-    	
-    	if(postResult != null) 
-    	{
-    		result = (JSONObject)JSONValue.parse(postResult);
-    		
-    		if(result.containsKey("d"))
-    		{
-    			result = (JSONObject)result.get("d");
-    		}
-    	}
-    	
-        return result;
+    protected JsonObject post(String path, InputStream data) {
+    	return parseJson(requests.doPost(path, data));
     }
 
-    protected JSONObject post(String path, String data) {
-    	JSONObject result = null;
-    	
-    	String postResult = requests.doPost(path, data);
-    	
-    	if(postResult != null) 
-    	{
-    		result = (JSONObject)JSONValue.parse(postResult);
-    		
-    		if(result.containsKey("d"))
-    		{
-    			result = (JSONObject)result.get("d");
-    		}
-    	}
-    	
-        return result;
+    
+    /**
+     * Executes a HTTP POST request at the given path.
+     * @param path The API endpoint path
+     * @param data The data as a String
+     * @return The response as a JsonObject
+     * @throws RuntimeException If the response's status code is other than 200
+     */
+    protected JsonObject post(String path, String data) {
+    	return parseJson(requests.doPost(path, data));
     }
     
     /**
      * Executes a HTTP DELETE request at the given path.
      * @param path The API endpoint path
      * @param formDigestValue The X-RequestDigest value
-     * @return The response as a String
+     * @return The response as a JsonObject
      * @throws RuntimeException If the response's status code is other than 200
      */
-    @SuppressWarnings("unused")
-    protected String delete(String path) {
-        return requests.doDelete(path);
+    protected JsonObject delete(String path) {
+        return parseJson(requests.doDelete(path));
     }
     
-    public JSONArray listFiles(String path){
-    	JSONArray result = null;
+    public JsonArray listFiles(String path){
+    	JsonArray result = null;
     	
-    	JSONObject response = (JSONObject)JSONValue.parse(this.get(path));
+    	JsonObject response = this.get(path);
 
-    	if(response != null && response.containsKey("d"))
+    	if(response != null)
     	{
-    		result = (JSONArray)((JSONObject)response.get("d")).get("results");
+    		//key is "results"
+    		result = response.getAsJsonArray("results");
     	}
     	
     	return result;
