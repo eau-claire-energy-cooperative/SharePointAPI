@@ -1,6 +1,10 @@
 *.iml
 .idea
 
+# maven files
+bin/
+target/
+
 # eclipse files
 .settings/
 .project
