@@ -11,9 +11,8 @@ import org.json.simple.JSONValue;
  * all public API is available through instance methods of this class
  */
 public class SharePointAPI {
-
-    private final Token authToken;
-
+	private final SharePointHttpRequests requests;
+	
     /**
      * Takes in a token as a parameter and constructs
      * a class through which we access the SharePoint API. Use the
@@ -21,11 +20,10 @@ public class SharePointAPI {
      * @param authToken com.dustinredmond.sharepoint.Token with which to authenticate to SharePoint
      */
     public SharePointAPI(Token authToken) {
-        this.authToken = authToken;
+        requests = new SharePointHttpRequests(authToken);
     }
 
     /**
-     * Gets an instance of the SharePointAPI class.
      * Provided as a convenience method, to avoid having to create
      * a token via SharePointTokenFactory.getToken()
      * @param username The SharePoint username e.g. person@example.com
@@ -45,11 +43,11 @@ public class SharePointAPI {
      * @throws RuntimeException If the response's status code is other than 200
      */
     public String get(String path) {
-        return SharePointRequests.doGet(path, authToken);
+        return requests.doGet(path);
     }
 
     public InputStream getFile(String path) {
-    	return SharePointRequests.doGetStream(path, authToken);
+    	return requests.doGetStream(path);
     }
     
     /**
@@ -63,7 +61,7 @@ public class SharePointAPI {
     protected JSONObject post(String path, InputStream data) {
     	JSONObject result = null;
     	
-    	String postResult = SharePointRequests.doPost(path, data, authToken);
+    	String postResult = requests.doPost(path, data);
     	
     	if(postResult != null) 
     	{
@@ -81,7 +79,7 @@ public class SharePointAPI {
     protected JSONObject post(String path, String data) {
     	JSONObject result = null;
     	
-    	String postResult = SharePointRequests.doPost(path, data, authToken);
+    	String postResult = requests.doPost(path, data);
     	
     	if(postResult != null) 
     	{
@@ -105,7 +103,7 @@ public class SharePointAPI {
      */
     @SuppressWarnings("unused")
     protected String delete(String path) {
-        return SharePointRequests.doDelete(path, authToken);
+        return requests.doDelete(path);
     }
     
     public JSONArray listFiles(String path){

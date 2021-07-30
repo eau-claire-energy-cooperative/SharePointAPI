@@ -12,9 +12,14 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class SharePointRequests {
-
-    protected static InputStream doGetStream(String url, Token authToken) {
+public class SharePointHttpRequests {
+    private final Token authToken;
+    
+	public SharePointHttpRequests(Token authToken) {
+	    this.authToken = authToken;
+	}
+	
+    protected InputStream doGetStream(String url) {
         final String urlPath = "https://" + authToken.getDomain() + ".sharepoint.com/" + url;
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpGet httpGet = new HttpGet(urlPath);
@@ -32,21 +37,21 @@ public class SharePointRequests {
         }
     }
 
-    protected static String doGet(String url, Token authToken) {
+    protected String doGet(String url) {
     	try {
-			return inStreamToString(SharePointRequests.doGetStream(url, authToken));
+			return inStreamToString(this.doGetStream(url));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
     }
 
-    protected static String doPost(String path, InputStream data, Token authToken) {
+    protected String doPost(String path, InputStream data) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
             post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
             post.addHeader("accept", "application/json;odata=verbose");
-            post.addHeader("X-RequestDigest", getFormDigestValue(authToken));
+            post.addHeader("X-RequestDigest", getFormDigestValue());
             post.addHeader("IF-MATCH", "*");
 
             if (data != null) {
@@ -68,13 +73,13 @@ public class SharePointRequests {
         }
     }
 
-    protected static String doPost(String path, String data, Token authToken) {
+    protected String doPost(String path, String data) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
             post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
             post.addHeader("accept", "application/json;odata=verbose");
             post.addHeader("Content-Type", "application/json");
-            post.addHeader("X-RequestDigest", getFormDigestValue(authToken));
+            post.addHeader("X-RequestDigest", getFormDigestValue());
             post.addHeader("IF-MATCH", "*");
 
             if (data != null) {
@@ -96,13 +101,13 @@ public class SharePointRequests {
         }
     }
     
-    protected static String doDelete(String path, Token authToken) {
+    protected String doDelete(String path) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpDelete del = new HttpDelete("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
             del.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
             del.addHeader("accept", "application/json;odata=verbose");
             del.addHeader("content-type", "application/json;odata=verbose");
-            del.addHeader("X-RequestDigest", getFormDigestValue(authToken));
+            del.addHeader("X-RequestDigest", getFormDigestValue());
             del.addHeader("IF-MATCH", "*");
             HttpResponse response = client.execute(del);
 
@@ -120,7 +125,7 @@ public class SharePointRequests {
         return null;
     }
 
-    private static String inStreamToString(InputStream in) throws IOException {
+    private String inStreamToString(InputStream in) throws IOException {
         StringBuilder sb = new StringBuilder();
         Charset cs = Charset.forName(StandardCharsets.UTF_8.name());
         try (Reader reader = new BufferedReader(new InputStreamReader(in, cs))) {
@@ -132,10 +137,10 @@ public class SharePointRequests {
         return sb.toString();
     }
     
-    private static String getFormDigestValue(Token auth) {
+    private String getFormDigestValue() {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost("https://" + auth.getDomain() + ".sharepoint.com/_api/contextinfo");
-            post.addHeader("Cookie", auth.getRtFa() + ";" + auth.getFedAuth());
+            HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/_api/contextinfo");
+            post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
             post.addHeader("accept", "application/json;odata=verbose");
             post.addHeader("content-type", "application/json;odata=verbose");
 
