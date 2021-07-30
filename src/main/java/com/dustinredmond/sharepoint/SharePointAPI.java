@@ -144,19 +144,5 @@ public class SharePointAPI {
         
         return result;
     }
-    
-    public JsonArray listFiles(String path){
-    	JsonArray result = null;
-    	
-    	JsonObject response = this.get(path);
-
-    	if(response != null)
-    	{
-    		//key is "results"
-    		result = response.getAsJsonArray("results");
-    	}
-    	
-    	return result;
-    }
 
 }
