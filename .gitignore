@@ -1,2 +1,7 @@
 *.iml
 .idea
+
+# eclipse files
+.settings/
+.project
+.classpath
