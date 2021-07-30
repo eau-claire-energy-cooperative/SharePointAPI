@@ -25,6 +25,19 @@ public class SharePointAPI {
     }
 
     /**
+     * Gets an instance of the SharePointAPI class.
+     * Provided as a convenience method, to avoid having to create
+     * a token via SharePointTokenFactory.getToken()
+     * @param username The SharePoint username e.g. person@example.com
+     * @param password The SharePoint user's password
+     * @param domain The subdomain of SharePoint
+     * @return An instance of the SharePointAPI for making requests to SharePoint
+     */
+    public SharePointAPI(String username, String password, String domain) {
+        this(TokenFactory.getToken(username, password, domain));
+    }
+    
+    /**
      * Executes a HTTP GET request at the given path.
      * https://youDomain.sharepoint.com/${path goes here}
      * @param path The API endpoint path
@@ -106,20 +119,6 @@ public class SharePointAPI {
     	}
     	
     	return result;
-    }
-    
-    
-    /**
-     * Gets an instance of the SharePointAPI class.
-     * Provided as a convenience method, to avoid having to create
-     * a token via SharePointTokenFactory.getToken()
-     * @param username The SharePoint username e.g. person@example.com
-     * @param password The SharePoint user's password
-     * @param domain The subdomain of SharePoint
-     * @return An instance of the SharePointAPI for making requests to SharePoint
-     */
-    public static SharePointAPI getInstance(String username, String password, String domain) {
-        return new SharePointAPI(TokenFactory.getToken(username, password, domain));
     }
 
 }
