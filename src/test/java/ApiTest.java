@@ -8,7 +8,7 @@ import com.google.gson.JsonParser;
 
 import java.math.BigDecimal;
 
-public class Test {
+public class ApiTest {
 
 	/*
 	 * Takes 5 args
