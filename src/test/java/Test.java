@@ -36,14 +36,11 @@ public class Test {
         // The below will get Invoice with ID 130 from the
         // InvoiceRetention SharePoint site's Invoices list
         final String site = args[3];
-        String invoice = api.get(site+"/_api/web/" +  args[4]);
+        JsonObject invoice = api.get(site+"/_api/web/" +  args[4]);
 
         // We can use Google's Gson library to make our JSON print prettily
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(JsonParser.parseString(invoice));
+        String prettyJson = gson.toJson(invoice);
         System.out.println(prettyJson);
-
-        // Using Gson's JsonParser class, we can get our Invoice as an "object" of sorts
-        JsonObject rootElement = JsonParser.parseString(invoice).getAsJsonObject();
     }
 }
