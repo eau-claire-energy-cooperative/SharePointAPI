@@ -105,4 +105,10 @@ public class SharePointSite {
 		
 		return result;
 	}
+	
+	public boolean deleteFile(String path) {
+		String url = baseSite + API_URL + String.format("getfilebyserverrelativeurl('%s')", this.urlEncodePath(path));
+		
+		return api.delete(url);
+	}
 }
