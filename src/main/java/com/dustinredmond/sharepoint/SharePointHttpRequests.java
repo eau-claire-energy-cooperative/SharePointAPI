@@ -31,7 +31,7 @@ public class SharePointHttpRequests {
         CloseableHttpClient client = HttpClients.createDefault();
         
         HttpGet httpGet = new HttpGet(urlPath);
-        httpGet.addHeader("Cookie", String.format("%s;%s", authToken.getRtFa(), authToken.getFedAuth()));
+        httpGet.addHeader(authToken.getHeader());
         httpGet.addHeader("accept", "application/json;odata=verbose");
         HttpResponse response = client.execute(httpGet);
 
@@ -51,7 +51,7 @@ public class SharePointHttpRequests {
     	CloseableHttpClient client = HttpClients.createDefault();
         
         HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
-        post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
+        post.addHeader(authToken.getHeader());
         post.addHeader("accept", "application/json;odata=verbose");
         post.addHeader("X-RequestDigest", getFormDigestValue());
         post.addHeader("IF-MATCH", "*");
@@ -78,7 +78,7 @@ public class SharePointHttpRequests {
         CloseableHttpClient client = HttpClients.createDefault();
         
         HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
-        post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
+        post.addHeader(authToken.getHeader());
         post.addHeader("accept", "application/json;odata=verbose");
         post.addHeader("Content-Type", "application/json");
         post.addHeader("X-RequestDigest", getFormDigestValue());
@@ -105,7 +105,7 @@ public class SharePointHttpRequests {
         CloseableHttpClient client = HttpClients.createDefault();
         
         HttpDelete del = new HttpDelete("https://" + authToken.getDomain() + ".sharepoint.com/" + path);
-        del.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
+        del.addHeader(authToken.getHeader());
         del.addHeader("accept", "application/json;odata=verbose");
         del.addHeader("content-type", "application/json;odata=verbose");
         del.addHeader("X-RequestDigest", getFormDigestValue());
@@ -139,7 +139,7 @@ public class SharePointHttpRequests {
     	
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost("https://" + authToken.getDomain() + ".sharepoint.com/_api/contextinfo");
-            post.addHeader("Cookie", authToken.getRtFa() + ";" + authToken.getFedAuth());
+            post.addHeader(authToken.getHeader());
             post.addHeader("accept", "application/json;odata=verbose");
             post.addHeader("content-type", "application/json;odata=verbose");
 

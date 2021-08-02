@@ -1,29 +1,18 @@
 package com.dustinredmond.sharepoint;
 
-public final class Token {
+import org.apache.http.Header;
 
-    private final String rtFa;
-    private final String fedAuth;
+public abstract class Token {
     private final String domain;
 
-    Token(String rtFa, String fedAuth, String domain) {
-        this.rtFa = rtFa;
-        this.fedAuth = fedAuth;
+    Token(String domain) {
         this.domain = domain;
     }
 
+    public abstract Header getHeader();
+    
     public String getDomain() {
         return this.domain;
-    }
-    public String getRtFa() {
-        return this.rtFa;
-    }
-    public String getFedAuth() {
-        return this.fedAuth;
-    }
-
-    static Token of(String rtFa, String fedAuth, String domain) {
-        return new Token(rtFa, fedAuth, domain);
     }
 
 }
