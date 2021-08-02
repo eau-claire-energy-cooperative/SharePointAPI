@@ -26,7 +26,7 @@ public class SiteTest {
         String domain = args[2];
 
         // We have to create our Token for authentication
-        Token token = TokenFactory.getToken(username, password, domain);
+        Token token = TokenFactory.getUserToken(username, password, domain);
 
         SharePointSite api = new SharePointSite(new SharePointAPI(token), args[3]);
 
