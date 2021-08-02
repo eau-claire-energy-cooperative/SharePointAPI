@@ -31,24 +31,7 @@ public class SharePointAPI {
      * @param domain The subdomain of SharePoint
      */
     public SharePointAPI(String username, String password, String domain) {
-        this(TokenFactory.getToken(username, password, domain));
-    }
-    
-    private JsonObject parseJson(String json) {
-    	JsonObject result = null;
-    	
-    	if(json != null)
-    	{
-    		result = JsonParser.parseString(json).getAsJsonObject();
-    		
-    		// if the data exists extract it
-    		if(result.has("d"))
-    		{
-    			result = result.getAsJsonObject("d");
-    		}
-    	}
-    	
-    	return result;
+        this(TokenFactory.getUserToken(username, password, domain));
     }
     
     /**
@@ -61,7 +44,7 @@ public class SharePointAPI {
     	JsonObject result = null;
     	
         try {
-			result = parseJson(requests.doGet(path));
+			result = Utils.parseJson(requests.doGet(path));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -98,9 +81,8 @@ public class SharePointAPI {
     	JsonObject result = null;
     	
     	try {
-			result = parseJson(requests.doPost(path, data));
+			result = Utils.parseJson(requests.doPost(path, data));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
@@ -118,7 +100,7 @@ public class SharePointAPI {
     	JsonObject result = null;
     	
     	try {
-			result = parseJson(requests.doPost(path, data));
+			result = Utils.parseJson(requests.doPost(path, data));
 		} catch (IOException e) {
     	
 			e.printStackTrace();

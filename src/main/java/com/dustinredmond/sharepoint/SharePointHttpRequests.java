@@ -44,7 +44,7 @@ public class SharePointHttpRequests {
     }
 
     protected String doGet(String url) throws IOException {
-    	return inStreamToString(this.doGetStream(url));
+    	return Utils.inStreamToString(this.doGetStream(url));
     }
 
     protected String doPost(String path, InputStream data) throws IOException {
@@ -69,7 +69,7 @@ public class SharePointHttpRequests {
         if (response.getEntity() == null || response.getEntity().getContent() == null) {
             return null;
         } else {
-            return inStreamToString(response.getEntity().getContent());
+            return Utils.inStreamToString(response.getEntity().getContent());
         }
         
     }
@@ -96,7 +96,7 @@ public class SharePointHttpRequests {
         if (response.getEntity() == null || response.getEntity().getContent() == null) {
             return null;
         } else {
-            return inStreamToString(response.getEntity().getContent());
+            return Utils.inStreamToString(response.getEntity().getContent());
         }
        
     }
@@ -118,20 +118,8 @@ public class SharePointHttpRequests {
         if (response.getEntity() == null || response.getEntity().getContent() == null) {
             return null;
         } else {
-            return inStreamToString(response.getEntity().getContent());
+            return Utils.inStreamToString(response.getEntity().getContent());
         }
-    }
-
-    private String inStreamToString(InputStream in) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        Charset cs = Charset.forName(StandardCharsets.UTF_8.name());
-        try (Reader reader = new BufferedReader(new InputStreamReader(in, cs))) {
-            int c;
-            while ((c = reader.read()) != -1) {
-                sb.append((char) c);
-            }
-        }
-        return sb.toString();
     }
     
     private String getFormDigestValue() {
@@ -149,7 +137,7 @@ public class SharePointHttpRequests {
             }
             
             if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                String json = inStreamToString(response.getEntity().getContent());
+                String json = Utils.inStreamToString(response.getEntity().getContent());
                 int indexOfDigest = json.indexOf("\"FormDigestValue\":\"");
                 String digestStart =  json.substring(indexOfDigest+19);
                 
