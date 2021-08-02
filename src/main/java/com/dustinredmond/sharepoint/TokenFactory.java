@@ -1,9 +1,21 @@
 package com.dustinredmond.sharepoint;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.google.gson.JsonObject;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,10 +23,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.net.CookieHandler;
@@ -22,24 +38,46 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class TokenFactory {
-
-    public static Token getToken(String username, String password, String domain) {
+    private static final String MICROSOFT_STS = "https://login.microsoftonline.com/extSTS.srf";
+    private static final String MICROSOFT_OATH = "https://accounts.accesscontrol.windows.net/%s/tokens/OAuth/2";
+    
+    public static Token getUserToken(String username, String password, String domain) {
         username = StringEscapeUtils.escapeXml11(username);
         password = StringEscapeUtils.escapeXml11(password);
         Token authToken;
         try {
-            authToken = submitTokenToDomain(domain, requestToken(domain,username,password));
+            authToken = submitTokenToDomain(domain, doRequestUserToken(domain,username,password));
             return authToken;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static String requestToken(String domain, String username, String password) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
+    public static Token getAppToken(String appClientId, String appClientSecret, String domain, String directoryId) {
+    	Token result = null;
+    	
+    	String response = doRequestOauthToken(appClientId, appClientSecret, domain, directoryId);
+    	
+    	if(response != null)
+    	{
+    		//convert to JSON and get the bearer
+    		JsonObject json = Utils.parseJson(response);
+    		
+    		System.out.println(json.get("access_token").getAsString());
+    		result = new AppToken(json.get("access_token").getAsString(), domain);
+    	}
+    	
+    	return result;
+    }
+    
+    private static String doRequestUserToken(String domain, String username, String password) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         String envelope = getEnvelopeString(domain, username, password);
         URLConnection uc = new URL(MICROSOFT_STS).openConnection();
         HttpURLConnection connection = (HttpURLConnection) uc;
@@ -140,8 +178,38 @@ public class TokenFactory {
                 }
             }
         }
-        return Token.of(rtFa, fedAuth, domain);
+        return new UserToken(rtFa, fedAuth, domain);
     }
+    
+    private static String doRequestOauthToken(String appClientId, String appClientSecret, String domain, String directoryId) {
+    	String result = null;
+    	
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(String.format(TokenFactory.MICROSOFT_OATH, directoryId));
+            post.addHeader("accept", "application/json");
 
-    private static final String MICROSOFT_STS = "https://login.microsoftonline.com/extSTS.srf";
+            List<NameValuePair> form = new ArrayList<>();
+            form.add(new BasicNameValuePair("resource", "00000003-0000-0ff1-ce00-000000000000/" + domain + ".sharepoint.com@" + directoryId));
+            form.add(new BasicNameValuePair("client_id", appClientId + "@" + directoryId));
+            form.add(new BasicNameValuePair("client_secret", appClientSecret));
+            form.add(new BasicNameValuePair("grant_type", "	client_credentials"));
+            HttpEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
+            
+            post.setEntity(entity);
+            
+            HttpResponse response = client.execute(post);
+            if (response.getStatusLine().getStatusCode() != 200 && response.getStatusLine().getStatusCode() != 204) {
+            	throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+            }
+            
+            if (response.getEntity() != null && response.getEntity().getContent() != null) {
+                result = Utils.inStreamToString(response.getEntity().getContent());
+            }
+            
+        } catch (IOException e) {
+           	e.printStackTrace();
+        }
+        
+        return result;
+    }
 }
