@@ -3,6 +3,9 @@ package com.dustinredmond.sharepoint;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
+/**
+ * The authorization token as returned via the SharePoint app authentication method. 
+ */
 public class AppToken extends Token {
 	private final String accessToken;
 	

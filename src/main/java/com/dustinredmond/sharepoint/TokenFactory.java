@@ -36,6 +36,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Generates Tokens based on the authorization method. 
+ */
 public class TokenFactory {
     private static final String MICROSOFT_STS = "https://login.microsoftonline.com/extSTS.srf";
     private static final String MICROSOFT_OATH = "https://accounts.accesscontrol.windows.net/%s/tokens/OAuth/2";

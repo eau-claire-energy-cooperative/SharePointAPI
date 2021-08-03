@@ -3,6 +3,9 @@ package com.dustinredmond.sharepoint;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
+/**
+ * The authorization token as returned via the username/password authentication method
+ */
 public class UserToken extends Token {
 	private final String rtFa;
     private final String fedAuth;

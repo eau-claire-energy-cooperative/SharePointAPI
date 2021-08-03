@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 /**
  * Constructs an instance of the SharePointAPI,
- * all public API is available through instance methods of this class
+ * all public SharePoint API calls are available through instance methods of this class
  */
 public class SharePointAPI {
 	private final SharePointHttpRequests requests;

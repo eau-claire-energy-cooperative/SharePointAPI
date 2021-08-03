@@ -11,9 +11,18 @@ import java.nio.charset.StandardCharsets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * Util methods used throughout the program
+ */
 public final class Utils {
 
 	
+	/**
+	 * @param json a JSON string 
+	 * @return deserialized JSON value as an object
+	 * 
+	 * Microsoft formated JSON responses are an object starting containing one key "d". This function returns the "d" value directly when it exists. 
+	 */
 	public static JsonObject parseJson(String json) {
     	JsonObject result = null;
     	
@@ -31,6 +40,13 @@ public final class Utils {
     	return result;
     }
 	
+	/**
+	 * @param in inputstream to convert to a string
+	 * @return value converted to a String
+	 * @throws IOException
+	 * 
+	 * Converts an input stream (usually from an HTTP request) to a string
+	 */
 	public static String inStreamToString(InputStream in) throws IOException {
         StringBuilder sb = new StringBuilder();
         Charset cs = Charset.forName(StandardCharsets.UTF_8.name());
