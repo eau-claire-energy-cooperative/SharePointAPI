@@ -99,7 +99,6 @@ public class SharePointAPI {
     /**
      * Executes a HTTP DELETE request at the given path.
      * @param path The API endpoint path
-     * @param formDigestValue The X-RequestDigest value
      * @return boolean if this was successful
      */
     protected boolean delete(String path) {
