@@ -65,6 +65,12 @@ public class SharePointSite {
     	return result;
     }
 	
+	public JsonObject getFolder(String path) {
+		String url = baseSite + API_URL + String.format("GetFolderByServerRelativeUrl('%s')", this.urlEncodePath(path));
+		
+		return api.get(url);
+	}
+	
 	public JsonObject getFile(String path) {
 		String url = baseSite + API_URL + String.format("getfilebyserverrelativeurl('%s')", this.urlEncodePath(path));
 		
