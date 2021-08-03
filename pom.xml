@@ -61,7 +61,7 @@
 		      	<artifactId>maven-javadoc-plugin</artifactId>
 		      	<version>3.0.0-M1</version>
 		      	<configuration>
-		      		<outputDirectory>${project.basedir}/public</outputDirectory>
+		      		<outputDirectory>${project.basedir}/docs</outputDirectory>
 		      		<links>
 		      			<link>https://javadoc.io/doc/com.google.code.gson/gson/2.8.6/</link>
 		      			<link>https://javadoc.io/doc/org.apache.httpcomponents/httpclient/</link>
