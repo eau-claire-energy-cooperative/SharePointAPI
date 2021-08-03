@@ -21,8 +21,17 @@ public class SharePointSite {
 	private final SharePointAPI api;
 	private final String baseSite;
 	
+	
+	public SharePointSite(Token token) {
+		this(token, "/");
+	}
+	
 	public SharePointSite(SharePointAPI api) {
 		this(api, "/");
+	}
+	
+	public SharePointSite(Token token, String site) {
+		this(new SharePointAPI(token), site);
 	}
 	
 	public SharePointSite(SharePointAPI api, String site) {
