@@ -1,3 +1,4 @@
+package com.dustinredmond.sharepoint.test;
 import com.dustinredmond.sharepoint.SharePointAPI;
 import com.dustinredmond.sharepoint.TokenFactory;
 import com.dustinredmond.sharepoint.Token;

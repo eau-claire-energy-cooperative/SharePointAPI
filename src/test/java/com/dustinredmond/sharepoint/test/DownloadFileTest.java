@@ -1,3 +1,4 @@
+package com.dustinredmond.sharepoint.test;
 import java.io.File;
 
 import com.dustinredmond.sharepoint.SharePointSite;
