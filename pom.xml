@@ -36,8 +36,8 @@
                 <descriptorRefs>
                     <descriptorRef>jar-with-dependencies</descriptorRef>
                 </descriptorRefs>
-                <appendAssemblyId>false</appendAssemblyId>
-                <finalName>SharePointAPI-jar-with-dependencies</finalName>
+                <appendAssemblyId>true</appendAssemblyId>
+                <finalName>SharePointAPI</finalName>
             </configuration>
             <executions>
                 <execution>
