@@ -5,6 +5,7 @@ import com.dustinredmond.sharepoint.Token;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class SiteTest {
 
@@ -14,7 +15,7 @@ public class SiteTest {
 	 * 2. password
 	 * 3. domain - example "contoso"
 	 * 4. site - site string /sites/SiteName
-	 * 5. path to a document library - example "/SiteLibrary"
+	 * 5. path to a document library file - example "/SiteLibrary/File.docx"
 	 */
     public static void main(String[] args) {
     	
@@ -29,12 +30,12 @@ public class SiteTest {
         Token token = TokenFactory.getUserToken(username, password, domain);
 
         SharePointSite api = new SharePointSite(new SharePointAPI(token), args[3]);
-
-        JsonArray files = api.listFiles(args[4]);
+        
+        JsonObject file = api.getFile(args[4]);
 
         // We can use Google's Gson library to make our JSON print prettily
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(files);
+        String prettyJson = gson.toJson(file);
         System.out.println(prettyJson);
     }
 }
