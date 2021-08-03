@@ -112,4 +112,4 @@ __Create the App__
 7. Hit Save and hit _Trust It_ on the next screen. 
 8. You'll also need your Tenant ID. This can be found in Azure AD. For exact instructions [read this article](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant). You'll need this to authenticate as well. 
 
-One complete you should have a client ID (app ID), a client secret, and your tenant ID for authentication. These are passed to the `TokenFactory` class to create an OAuth request and generate a token for use against the REST API. 
+Once complete you should have a client ID (app ID), a client secret, and your tenant ID for authentication. These are passed to the `TokenFactory` class to create an OAuth request and generate a token for use against the REST API. 
