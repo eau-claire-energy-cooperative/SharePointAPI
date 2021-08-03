@@ -69,8 +69,7 @@ public class TokenFactory {
     	{
     		//convert to JSON and get the bearer
     		JsonObject json = Utils.parseJson(response);
-    		
-    		System.out.println(json.get("access_token").getAsString());
+
     		result = new AppToken(json.get("access_token").getAsString(), domain);
     	}
     	
