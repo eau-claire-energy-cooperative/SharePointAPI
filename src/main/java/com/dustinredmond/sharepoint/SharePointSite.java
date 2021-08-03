@@ -65,6 +65,12 @@ public class SharePointSite {
     	return result;
     }
 	
+	public JsonObject getFile(String path) {
+		String url = baseSite + API_URL + String.format("getfilebyserverrelativeurl('%s')", this.urlEncodePath(path));
+		
+		return api.get(url);
+	}
+	
 	public boolean uploadFile(String folderPath, String filename, InputStream fileData) {
 		String url = baseSite + API_URL + String.format("GetFolderByServerRelativeUrl('%s')/Files/add(url='%s',overwrite=true)", urlEncodePath(folderPath), urlEncodePath(filename));
 		
