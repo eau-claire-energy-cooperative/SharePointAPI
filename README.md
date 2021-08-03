@@ -21,7 +21,7 @@ The easiest way to install is to add the JAR, and required dependencies, to a Ma
 
 ## Usage
 
-Prior to using the library you'll need to make a choice on if you want to authenticate using a SharePoint username/password or by creating a SharePoint App for the given site. The SharePoint App is Microsoft's officially supported way of using the REST API; however it requires some additional setup setup steps (see below). 
+Prior to using the library you'll need to make a choice on if you want to authenticate using a SharePoint username/password or by creating a SharePoint App for the given site. The SharePoint App is Microsoft's officially supported way of using the REST API; however it requires some additional setup setup steps (see below). There are some [example classes](https://github.com/eau-claire-energy-cooperative/SharePointAPI/tree/updates/src/test/java) in the test directory located under `src/`. These provide some basic examples for interacting with files and folders. 
 
 ### Authenticating
 
