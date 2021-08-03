@@ -4,7 +4,6 @@ import com.dustinredmond.sharepoint.TokenFactory;
 import com.dustinredmond.sharepoint.Token;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class SiteTest {
