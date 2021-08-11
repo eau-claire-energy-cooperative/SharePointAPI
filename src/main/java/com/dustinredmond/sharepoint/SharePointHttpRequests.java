@@ -27,10 +27,10 @@ public class SharePointHttpRequests {
 	}
 	
     protected InputStream doGetStream(String url) throws IOException {
-        final String urlPath = "https://" + authToken.getDomain() + ".sharepoint.com/" + url;
+        final String urlPath = "https://" + authToken.getDomain() + ".sharepoint.com" + url;
         
         CloseableHttpClient client = HttpClients.createDefault();
-        
+
         HttpGet httpGet = new HttpGet(urlPath);
         httpGet.addHeader(authToken.getHeader());
         httpGet.addHeader("accept", "application/json;odata=verbose");
