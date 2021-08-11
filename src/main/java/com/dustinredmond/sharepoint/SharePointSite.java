@@ -40,6 +40,13 @@ public class SharePointSite {
 	}
 	
 	private String urlEncodePath(String s) {
+		
+		// if not in the root site, you must use the full path to the file
+		if(this.baseSite.startsWith("/sites"))
+		{
+			s = this.baseSite.substring(0, this.baseSite.length() - 1) + s;
+		}
+		
 		//replace spaces but leave other characters alone
 		return s.replaceAll(" ", "%20");
 	}
