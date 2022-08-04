@@ -115,3 +115,14 @@ __Create the App__
 8. You'll also need your Tenant ID. This can be found in Azure AD. For exact instructions [read this article](https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant). You'll need this to authenticate as well. 
 
 Once complete you should have a client ID (app ID), a client secret, and your tenant ID for authentication. These are passed to the `TokenFactory` class to create an OAuth request and generate a token for use against the REST API. 
+ 
+__Replacing App Secret__
+
+By default the client secret for the created Sharepoint App will expire after 1 year. Microsoft [has instructions on their website](https://docs.microsoft.com/en-us/sharepoint/dev/sp-add-ins/replace-an-expiring-client-secret-in-a-sharepoint-add-in) for updating the secret using some PowerShell scripts. Unfortunately this isn't something that can be done through the web. To get the Powershell commands working you must first have some additional Powershell commands installed on your system. 
+
+```
+Install-Module -Name AzureAD
+Install-Module -Name AzureADPreview
+Install-Module -Name MsOnline
+
+```
